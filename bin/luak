@@ -1,0 +1,85 @@
+#!/usr/bin/env node
+
+const fs = require('fs');
+const path = require('path');
+const { spawn } = require('child_process');
+
+const command = process.argv[2];
+
+if (command === 'init') {
+    console.log('Initializing Luak Express project...');
+    initProject();
+} else {
+    console.log('Usage: luak init');
+    process.exit(1);
+}
+
+function initProject() {
+    const targetDir = process.cwd();
+    const packageDir = path.resolve(__dirname, '../'); // Assuming bin is inside the package
+
+    // Directories to copy
+    const dirsToCopy = [
+        'app',
+        'bootstrap',
+        'config',
+        'routes',
+        // 'database' // Optional, maybe created empty
+    ];
+
+    // Files to copy
+    const filesToCopy = [
+        'index.js',
+        '.env.example',
+        'gitignore.example' // We might need to rename .gitignore check
+    ];
+
+    // 1. Copy Directories
+    dirsToCopy.forEach(dir => {
+        const src = path.join(packageDir, dir);
+        const dest = path.join(targetDir, dir);
+        
+        if (fs.existsSync(src)) {
+            copyRecursiveSync(src, dest);
+            console.log(`Created: ${dir}`);
+        }
+    });
+
+    // 2. Copy Files
+    filesToCopy.forEach(file => {
+        const src = path.join(packageDir, file);
+        const dest = path.join(targetDir, file);
+        
+        // Handle .gitignore specifically if needed to avoid npm publishing issues
+        // For now direct copy
+        if (fs.existsSync(src)) {
+            fs.copyFileSync(src, dest);
+            console.log(`Created: ${file}`);
+        } else if (file === '.env.example' && fs.existsSync(path.join(packageDir, '.env'))) {
+             // Fallback to .env if .env.example doesn't exist in source but we want to provide one
+             fs.copyFileSync(path.join(packageDir, '.env'), dest);
+             console.log(`Created: ${file}`);
+        }
+    });
+
+    console.log('\nProject initialized successfully!');
+    console.log('Run "npm install" to install dependencies.');
+}
+
+function copyRecursiveSync(src, dest) {
+    const exists = fs.existsSync(src);
+    const stats = exists && fs.statSync(src);
+    const isDirectory = exists && stats.isDirectory();
+
+    if (isDirectory) {
+        if (!fs.existsSync(dest)) {
+            fs.mkdirSync(dest);
+        }
+
+        fs.readdirSync(src).forEach(childItemName => {
+            copyRecursiveSync(path.join(src, childItemName), path.join(dest, childItemName));
+        });
+    } else {
+        fs.copyFileSync(src, dest);
+    }
+}

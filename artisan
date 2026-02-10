@@ -1,0 +1,99 @@
+#!/usr/bin/env node
+
+const app = require('./bootstrap/app');
+const fs = require('fs');
+const path = require('path');
+
+const command = process.argv[2];
+
+// Handle the command
+handleCommand(command, app);
+
+function handleCommand(command, app) {
+    switch (command) {
+        case 'config:cache':
+            configCache(app);
+            break;
+        case 'config:clear':
+            configClear(app);
+            break;
+        case 'make:model':
+            makeModel(app, process.argv[3]);
+            break;
+        default:
+            console.log('Available commands:');
+            console.log('  config:cache    Create a cache file for faster configuration loading');
+            console.log('  config:clear    Remove the configuration cache file');
+            console.log('  make:model      Create a new model class');
+            process.exit(0);
+    }
+}
+
+function makeModel(app, name) {
+    if (!name) {
+        console.error('Please specify a model name (e.g., User)');
+        process.exit(1);
+    }
+
+    const modelPath = path.join(__dirname, 'app/Models', `${name}.js`);
+
+    if (fs.existsSync(modelPath)) {
+        console.error(`Model [${name}] already exists!`);
+        process.exit(1);
+    }
+
+    const template = `const { Model } = require('../../src/index');
+
+class ${name} extends Model {
+    /**
+     * The table associated with the model.
+     * 
+     * @returns {string}
+     */
+    static get table() {
+        return '${name.toLowerCase()}s';
+    }
+}
+
+module.exports = ${name};
+`;
+
+    const dir = path.dirname(modelPath);
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+    }
+
+    fs.writeFileSync(modelPath, template);
+    console.log(`Model [${name}] created successfully at ${modelPath}`);
+    process.exit(0);
+}
+
+function configCache(app) {
+    console.log('Caching configuration...');
+    const config = app.make('config');
+    const allConfig = config.all();
+
+    const cacheDir = path.join(__dirname, 'bootstrap/cache');
+    if (!fs.existsSync(cacheDir)) {
+        fs.mkdirSync(cacheDir, { recursive: true });
+    }
+
+    fs.writeFileSync(
+        path.join(cacheDir, 'config.json'),
+        JSON.stringify(allConfig, null, 2)
+    );
+
+    console.log('Configuration cached successfully!');
+    process.exit(0);
+}
+
+function configClear(app) {
+    const cacheFile = path.join(__dirname, 'bootstrap/cache/config.json');
+    if (fs.existsSync(cacheFile)) {
+        fs.unlinkSync(cacheFile);
+        console.log('Configuration cache cleared!');
+    } else {
+        console.log('No configuration cache found.');
+    }
+    process.exit(0);
+}

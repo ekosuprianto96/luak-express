@@ -1,10 +1,25 @@
 {
   "name": "luak-express",
-  "version": "1.0.0",
-  "description": "Autoloader express",
-  "main": "index.js",
+  "version": "2.0.0",
+  "description": "Premium Node.js Framework based on Express with Laravel-like features and elegant debugging.",
+  "main": "src/index.js",
+  "files": [
+    "src",
+    "bin",
+    "app",
+    "bootstrap",
+    "config",
+    "routes",
+    "storage",
+    "index.js",
+    "README.md"
+  ],
+  "bin": {
+    "luak": "bin/luak"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "node --watch index.js",
+    "test": "jest"
   },
   "keywords": [
     "autoloader",
@@ -12,11 +27,28 @@
     "node.js",
     "node"
   ],
-  "author": "ekosuprianto96@",
+  "author": "Eko Suprianto",
   "license": "ISC",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ekosuprianto96/luak-express.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ekosuprianto96/luak-express/issues"
+  },
+  "homepage": "https://github.com/ekosuprianto96/luak-express#readme",
   "dependencies": {
+    "dotenv": "^17.2.4",
+    "ejs": "^4.0.1",
     "express": "^5.1.0",
     "mongoose": "^8.17.2",
-    "sequelize": "^6.37.7"
+    "sequelize": "^6.37.7",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "jest": "^30.2.0"
   }
 }

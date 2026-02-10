@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 Page Not Found — <%= locals.appName %>
+    </title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #06080e;
+            --surface: #0c1018;
+            --text-1: #dde6f0;
+            --text-2: #8899aa;
+            --accent: #ff4545;
+            --accent-soft: rgba(255, 69, 69, 0.1);
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text-1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            padding: 3rem;
+            max-width: 600px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .code {
+            font-size: 10rem;
+            font-weight: 800;
+            letter-spacing: -0.05em;
+            line-height: 1;
+            background: linear-gradient(130deg, var(--accent) 0%, #ff8c00 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-1);
+        }
+
+        p {
+            color: var(--text-2);
+            font-size: 1rem;
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn {
+            display: inline-block;
+            text-decoration: none;
+            color: white;
+            background: var(--accent);
+            padding: 0.85rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.2s;
+            box-shadow: 0 4px 15px var(--accent-soft);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--accent-soft);
+            background: #e63535;
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 2rem;
+            left: 0;
+            right: 0;
+            font-size: 0.75rem;
+            color: #3d4f62;
+            letter-spacing: 0.05em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="code">404</div>
+        <h2>Oops! Page Not Found</h2>
+        <p>Maaf, halaman yang Anda cari tidak dapat ditemukan atau telah dipindahkan ke dimensi lain.</p>
+        <a href="/" class="btn">Kembali ke Home →</a>
+    </div>
+    <div class="footer">
+        <%= locals.appName %> Framework &nbsp;·&nbsp; v<%= locals.appVersion %>
+    </div>
+</body>
+
+</html>

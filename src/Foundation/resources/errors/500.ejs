@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= locals.errorName || 'Server Error' %> — Luak Express
+    </title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap"
+        rel="stylesheet">
+
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #06080e;
+            --surface: #0c1018;
+            --elevated: #131922;
+            --raised: #1a2130;
+            --border: rgba(255, 255, 255, 0.055);
+            --border-hi: rgba(255, 255, 255, 0.12);
+            --text-1: #dde6f0;
+            --text-2: #8899aa;
+            --text-3: #3d4f62;
+
+            --error: #ff4545;
+            --error-bg: rgba(255, 69, 69, 0.07);
+            --error-border: rgba(255, 69, 69, 0.2);
+
+            --app: #00d97e;
+            --app-bg: rgba(0, 217, 126, 0.06);
+            --app-border: rgba(0, 217, 126, 0.2);
+
+            --fn: #b79eff;
+            --file: #5eaeff;
+            --line-num: #ffc145;
+
+            --r-sm: 6px;
+            --r: 12px;
+            --r-lg: 18px;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text-1);
+            min-height: 100vh;
+        }
+
+        /* =========================================================
+           TOP BAR
+        ========================================================= */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(6, 8, 14, 0.82);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            height: 54px;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-1);
+            letter-spacing: -0.01em;
+            text-decoration: none;
+        }
+
+        .logo-mark {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: linear-gradient(140deg, #ff4545 0%, #ff8c00 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-weight: 800;
+            color: white;
+            letter-spacing: -0.05em;
+            flex-shrink: 0;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .status-badge {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--error);
+            background: var(--error-bg);
+            border: 1px solid var(--error-border);
+            padding: 3px 11px;
+            border-radius: 99px;
+            letter-spacing: 0.04em;
+        }
+
+        /* =========================================================
+           LAYOUT
+        ========================================================= */
+        .main {
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: 3rem 2rem 5rem;
+        }
+
+        /* =========================================================
+           HERO
+        ========================================================= */
+        .hero {
+            padding-bottom: 2.5rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 2.5rem;
+            animation: fadeUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .error-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.78rem;
+            color: var(--error);
+            background: var(--error-bg);
+            border: 1px solid var(--error-border);
+            padding: 5px 14px;
+            border-radius: 99px;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.04em;
+        }
+
+        .error-eyebrow::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--error);
+            border-radius: 50%;
+            animation: blink 1.6s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        .error-title {
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-size: clamp(2rem, 4.5vw, 3.2rem);
+            font-weight: 800;
+            letter-spacing: -0.035em;
+            line-height: 1.1;
+            color: var(--text-1);
+            margin-bottom: 1.25rem;
+        }
+
+        .error-message-block {
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+            max-width: 780px;
+        }
+
+        .error-message-bar {
+            width: 3px;
+            border-radius: 99px;
+            background: var(--error);
+            flex-shrink: 0;
+        }
+
+        .error-message-text {
+            padding: 0.9rem 1.25rem;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.875rem;
+            color: var(--text-2);
+            background: var(--elevated);
+            border-radius: 0 var(--r-sm) var(--r-sm) 0;
+            line-height: 1.6;
+            word-break: break-word;
+            flex: 1;
+        }
+
+        /* =========================================================
+           SECTION
+        ========================================================= */
+        .section {
+            animation: fadeUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+            animation-delay: 0.1s;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 1.25rem;
+        }
+
+        .section-label {
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.13em;
+            color: var(--text-3);
+            white-space: nowrap;
+        }
+
+        .section-rule {
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .section-meta {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.68rem;
+            color: var(--text-3);
+            background: var(--elevated);
+            padding: 3px 10px;
+            border-radius: 99px;
+            white-space: nowrap;
+        }
+
+        /* =========================================================
+           LEGEND
+        ========================================================= */
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            margin-bottom: 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 0.75rem;
+            color: var(--text-3);
+        }
+
+        .legend-pip {
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+        }
+
+        /* =========================================================
+           STACK FRAMES
+        ========================================================= */
+        .frames {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .frame {
+            display: grid;
+            grid-template-columns: 48px 1fr auto;
+            align-items: stretch;
+            border-radius: var(--r-sm);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            transition: border-color 0.15s ease, background 0.15s ease;
+        }
+
+        .frame:hover {
+            border-color: var(--border-hi);
+            background: var(--elevated);
+        }
+
+        .frame.app-frame {
+            border-color: var(--app-border);
+            background: var(--app-bg);
+        }
+
+        .frame.app-frame:hover {
+            border-color: rgba(0, 217, 126, 0.38);
+        }
+
+        .frame-num {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-3);
+            border-right: 1px solid var(--border);
+            flex-shrink: 0;
+            min-height: 54px;
+        }
+
+        .frame.app-frame .frame-num {
+            color: var(--app);
+            border-right-color: var(--app-border);
+            font-weight: 600;
+        }
+
+        .frame-body {
+            padding: 11px 16px;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .frame-fn {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--fn);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .frame.app-frame .frame-fn {
+            color: var(--app);
+        }
+
+        .frame-pill {
+            font-size: 0.6rem;
+            font-family: 'IBM Plex Mono', monospace;
+            background: var(--app-bg);
+            color: var(--app);
+            border: 1px solid var(--app-border);
+            padding: 1px 7px;
+            border-radius: 4px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+
+        .frame-path {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.73rem;
+            color: var(--text-3);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .frame.app-frame .frame-path {
+            color: var(--file);
+        }
+
+        .frame-path .fname {
+            font-weight: 600;
+        }
+
+        .frame.app-frame .frame-path .fname {
+            color: var(--text-1);
+        }
+
+        .frame-loc {
+            padding: 0 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 3px;
+            flex-shrink: 0;
+        }
+
+        .frame-line {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.78rem;
+            color: var(--line-num);
+            font-weight: 500;
+        }
+
+        .frame-col {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-3);
+        }
+
+        /* raw fallback */
+        .raw-stack {
+            background: var(--elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 1.25rem 1.5rem;
+        }
+
+        .raw-stack pre {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.78rem;
+            color: var(--text-2);
+            white-space: pre-wrap;
+            word-break: break-all;
+            line-height: 1.8;
+        }
+
+        /* =========================================================
+           ACTIONS
+        ========================================================= */
+        .actions {
+            margin-top: 3rem;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            animation: fadeUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+            animation-delay: 0.2s;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 0.65rem 1.35rem;
+            border-radius: var(--r-sm);
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-decoration: none;
+            letter-spacing: -0.01em;
+            transition: all 0.14s ease;
+        }
+
+        .btn-primary {
+            background: var(--error);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #e63535;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px -4px rgba(255, 69, 69, 0.3);
+        }
+
+        .btn-ghost {
+            background: var(--elevated);
+            color: var(--text-2);
+            border: 1px solid var(--border-hi);
+        }
+
+        .btn-ghost:hover {
+            background: var(--raised);
+            color: var(--text-1);
+        }
+
+        /* =========================================================
+           PRODUCTION 500
+        ========================================================= */
+        .prod-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            min-height: calc(100vh - 54px);
+            gap: 1.75rem;
+            padding: 2rem;
+            animation: fadeUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        .prod-code {
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-size: clamp(5rem, 18vw, 11rem);
+            font-weight: 800;
+            letter-spacing: -0.06em;
+            line-height: 1;
+            background: linear-gradient(130deg, var(--error) 0%, #ff9000 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .prod-heading {
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            color: var(--text-1);
+        }
+
+        .prod-sub {
+            color: var(--text-2);
+            font-size: 0.95rem;
+            font-weight: 300;
+            max-width: 380px;
+            line-height: 1.75;
+        }
+
+        /* =========================================================
+           FOOTER
+        ========================================================= */
+        .footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            font-size: 0.72rem;
+            color: var(--text-3);
+            letter-spacing: 0.04em;
+        }
+
+        /* =========================================================
+           RESPONSIVE
+        ========================================================= */
+        @media (max-width: 600px) {
+            .main {
+                padding: 2rem 1rem 4rem;
+            }
+
+            .topbar {
+                padding: 0 1rem;
+            }
+
+            .frame {
+                grid-template-columns: 38px 1fr;
+            }
+
+            .frame-loc {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <% /* ---------------------------------------------------------------- Helpers — parsed in EJS server-side
+        ---------------------------------------------------------------- */ function parseFrames(stack) { if (!stack)
+        return []; var frames=[]; var lines=stack.split('\n'); for (var i=0; i < lines.length; i++) { var
+        t=lines[i].trim(); if (!t.startsWith('at ')) continue;
+
+        // at FnName (/abs/path.js:10:5)
+        var m = t.match(/^at (.+?) \((.+?):(\d+):(\d+)\)$/);
+        if (m) { frames.push({ fn: m[1], file: m[2], line: m[3], col: m[4] }); continue; }
+
+        // at /abs/path.js:10:5  (no fn wrapping)
+        m = t.match(/^at (\/?.+?):(\d+):(\d+)$/);
+        if (m) { frames.push({ fn: ' <anonymous>', file: m[1], line: m[2], col: m[3] }); }
+        }
+        return frames;
+        }
+
+        function isApp(file) {
+        if (!file) return false;
+        return !file.includes('node_modules') && (
+        file.includes('/luak-express/') ||
+        file.includes('/src/') ||
+        file.includes('/app/') ||
+        file.includes('/routes/') ||
+        file.includes('/controllers/') ||
+        file.includes('/middleware/')
+        );
+        }
+
+        function fileName(f) {
+        if (!f) return '';
+        return f.split('/').pop();
+        }
+
+        function dirPath(f) {
+        if (!f) return '';
+        var parts = f.split('/');
+        parts.pop();
+        var rel = parts.join('/');
+        // Trim to last 4 segments for readability
+        var segs = parts.slice(-4);
+        return segs.length ? '…/' + segs.join('/') + '/' : '';
+        }
+
+        var frames = [];
+        var appCount = 0;
+        if (locals.debug) {
+        frames = parseFrames(locals.errorStack);
+        frames.forEach(function(f) { if (isApp(f.file)) appCount++; });
+        }
+        %>
+
+        <!-- ===== TOP BAR ===== -->
+        <div class="topbar">
+            <a href="/" class="logo">
+                <div class="logo-mark">Le</div>
+                Luak Express
+            </a>
+            <div class="topbar-right">
+                <% if (locals.debug) { %>
+                    <span class="status-badge">HTTP 500 · Debug Mode</span>
+                    <% } %>
+            </div>
+        </div>
+
+        <% if (locals.debug) { %>
+
+            <!-- ===== DEBUG VIEW ===== -->
+            <div class="main">
+
+                <!-- Hero -->
+                <div class="hero">
+                    <div class="error-eyebrow">
+                        <%= locals.errorName || 'Error' %>
+                    </div>
+                    <h1 class="error-title">Terjadi Kesalahan<br>pada Aplikasi</h1>
+                    <div class="error-message-block">
+                        <div class="error-message-bar"></div>
+                        <div class="error-message-text">
+                            <%= locals.errorMessage || 'Tidak ada pesan error.' %>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stack Trace -->
+                <div class="section">
+                    <div class="section-header">
+                        <span class="section-label">Stack Trace</span>
+                        <div class="section-rule"></div>
+                        <span class="section-meta">
+                            <%= frames.length %> frames &nbsp;·&nbsp; <span style="color:var(--app)">
+                                    <%= appCount %> app
+                                </span>
+                        </span>
+                    </div>
+
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-pip" style="background:var(--app)"></div>
+                            Application frame
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-pip" style="background:var(--fn)"></div>
+                            External / node_modules
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-pip" style="background:var(--line-num)"></div>
+                            Line :number
+                        </div>
+                    </div>
+
+                    <div class="frames">
+                        <% if (frames.length> 0) { %>
+                            <% frames.forEach(function(fr, idx) { var app=isApp(fr.file); var fn=fileName(fr.file); var
+                                dir=dirPath(fr.file); %>
+                                <div class="frame <%= app ? 'app-frame' : '' %>">
+                                    <div class="frame-num">#<%= idx %>
+                                    </div>
+                                    <div class="frame-body">
+                                        <div class="frame-fn">
+                                            <%= fr.fn %>
+                                                <% if (app) { %><span class="frame-pill">app</span>
+                                                    <% } %>
+                                        </div>
+                                        <div class="frame-path">
+                                            <span>
+                                                <%= dir %>
+                                            </span><span class="fname">
+                                                <%= fn %>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="frame-loc">
+                                        <div class="frame-line">:<%= fr.line %>
+                                        </div>
+                                        <div class="frame-col">col <%= fr.col %>
+                                        </div>
+                                    </div>
+                                </div>
+                                <% }); %>
+                                    <% } else if (locals.errorStack) { %>
+                                        <!-- Fallback raw stack -->
+                                        <div class="raw-stack">
+                                            <pre><%= locals.errorStack %></pre>
+                                        </div>
+                                        <% } %>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="actions">
+                    <a href="/" class="btn btn-primary">← Kembali ke Home</a>
+                    <a href="https://github.com/google/luak-express/issues" target="_blank"
+                        class="btn btn-ghost">Laporkan Bug ↗</a>
+                </div>
+
+                <div class="footer">
+                    <%= locals.appName %> Framework &nbsp;·&nbsp; v<%= locals.appVersion %>
+                </div>
+            </div>
+
+            <% } else { %>
+
+                <!-- ===== PRODUCTION VIEW ===== -->
+                <div class="prod-wrap">
+                    <div class="prod-code">500</div>
+                    <div>
+                        <div class="prod-heading">Something went wrong</div>
+                    </div>
+                    <p class="prod-sub">Maaf, kami mengalami kendala teknis. Tim kami sedang berusaha memperbaikinya
+                        secepat mungkin.</p>
+                    <a href="/" class="btn btn-primary">← Kembali ke Home</a>
+                </div>
+
+                <% } %>
+
+</body>
+
+</html>

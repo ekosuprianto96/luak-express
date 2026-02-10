@@ -1,111 +1,82 @@
-const AppErrorWithCapture = require('./src/exceptions/error.exception.js');
-const NotFoundException = require('./src/exceptions/notfound.exception.js');
+require('dotenv').config();
 
-module.exports = {
-    /**
-     * Initialize application
-     * @param {Express} app - Express application
-     */
-    init: function (app, options = {}) {
-        /**
-         * Listen error
-         */
-        process.on('unhandledRejection', (reason, p) => {
-            console.log('Unhandled Rejection at: Promise ', p, ' reason: ', reason);
-        });
+/**
+ * Register global helpers
+ */
+require('./src/Support/helpers');
 
-        /**
-         * Listen error
-         */
-        process.on('uncaughtException', (err) => {
-            console.log('Caught exception: ', err);
-            process.exit(1);
-        });
+/**
+ * Bootstrap the application
+ */
+const app = require('./bootstrap/app');
+const { Kernel } = require('./src/index');
 
-        const { 
-            connection, 
-            controllers, 
-            models,
-            service,
-            repository,
-            validate
-        } = require('./src/luak.js')(app);
+/**
+ * Run the application
+ */
+const port = process.env.PORT || 3000;
 
-        /**
-         * Connection
-         * @param {String} connectionName
-         * @param {Object} config
-         * @returns {Sequelize}
-         */
-        const environment = process.env.NODE_ENV || 'development';
-        const sequelizeInstance = connection(
-            'sequelize', 
-            require('../config/sequelize.config.js')[environment]
-        );
+const express = require('express');
+const path = require('path');
+const server = express();
 
-        global.modules = {
-            /**
-             * Load Middleware
-             */
-            middleware: [],
-            /**
-             * Controllers
-             * load controllers
-             */
-            controllers: controllers(),
-            /**
-             * Models
-             * load models
-             */
-            models: models(sequelizeInstance),
-            /**
-             * Sequelize
-             */
-            sequelize: sequelizeInstance,
-            /**
-             * Load Service
-             */
-            services: service(),
-            /**
-             * Load Repository
-             */
-            repositories: repository(),
-            /**
-             * Share request validator
-             */
-            validate
+// Bind express to container
+app.bind('express', () => server, true);
+
+// Body Parsers
+server.use(express.json());
+server.use(express.urlencoded({ extended: true }));
+
+// Configure View Engine
+server.set('view engine', 'ejs');
+server.set('views', path.join(__dirname, 'resources/views'));
+
+// Resolve Kernel & Handler
+const kernel = new Kernel(app);
+const Handler = require('./app/Exceptions/Handler');
+const handler = new Handler(app);
+
+// Register Global Middleware
+const LoggerMiddleware = require('./app/Http/Middleware/LoggerMiddleware');
+const MethodOverride = require('./src/Http/Middleware/MethodOverride');
+const { ddContextMiddleware } = require('./src/Foundation/helpers/dd');
+
+server.use(ddContextMiddleware);
+kernel.pushMiddleware(new MethodOverride());
+kernel.pushMiddleware(new LoggerMiddleware());
+
+// Wire up the Kernel to Express
+server.use((req, res, next) => {
+    try {
+        const result = kernel.handle(req, res, next);
+        if (result && typeof result.catch === 'function') {
+            result.catch(err => handler.render(req, res, err));
         }
-
-        /**
-         * Routes
-         */
-        require('./routes/api.js')(app, '/api/v1');
-
-        app.use((req, res) => {
-            throw new NotFoundException('Route not found');
-        });
-
-        /**
-         * Hanlde response error
-         */
-        app.use((err, req, res, next) => {
-            if (err instanceof AppErrorWithCapture) {
-                return res.status(err.statusCode || 500)
-                    .json({ 
-                        success: false,
-                        message: err.getMessage(),
-                        ...(err.errors && { errors: err.getErrors() }),
-                        ...(process.env.NODE_ENV === 'development' && { trace: err.getTraceAsString() })
-                    });
-            }
-        
-            res.status(err.statusCode || 500)
-                .json({ 
-                    success: false,
-                    message: err.message,
-                    ...(err.errors && { errors: err.errors }),
-                    ...(process.env.NODE_ENV === 'development' && { trace: err.stack })
-                });
-        });
+    } catch (err) {
+        handler.render(req, res, err);
     }
-}
+});
+
+// Mount the Router
+const router = app.make('router');
+server.use(router.router);
+
+// 404 Handler
+server.use((req, res, next) => {
+    const AppException = require('./app/Exceptions/AppException');
+    handler.render(req, res, new AppException('Page Not Found', 404));
+});
+
+// Final Error Handler for Express
+server.use((err, req, res, next) => {
+    handler.render(req, res, err);
+});
+
+app.start().then(() => {
+    server.listen(port, () => {
+        console.log(`Server is running on port ${port}`);
+    });
+}).catch(err => {
+    console.error('Failed to start application:', err);
+    process.exit(1);
+});

@@ -1,2 +1,22 @@
 node_modules
 package-lock.json
+
+# Environment
+.env
+.env.testing
+
+# Storage
+storage/logs/*.log
+storage/framework/cache/data/*
+!storage/framework/cache/data/.gitignore
+!storage/logs/.gitignore
+
+# Database
+database.sqlite
+database.sqlite-journal
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
