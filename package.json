@@ -1,6 +1,6 @@
 {
   "name": "luak-express",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Premium Node.js Framework based on Express with Laravel-like features and elegant debugging.",
   "main": "src/index.js",
   "files": [
