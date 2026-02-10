@@ -1,4 +1,4 @@
-# Release Notes - Luak Express v2.0.0 🚀
+# Release Notes - Luak Express v2.1.1 🚀
 
 Versi **2.0.0** adalah tonggak sejarah besar bagi Luak Express, menghadirkan kestabilan inti framework, keamanan desain, dan pengalaman debugging kelas atas yang terinspirasi dari standar industri modern (Laravel).
 
