@@ -50,14 +50,11 @@ function initProject() {
         const src = path.join(packageDir, file);
         const dest = path.join(targetDir, file);
 
-        // Handle .gitignore specifically if needed to avoid npm publishing issues
-        // For now direct copy
         if (fs.existsSync(src)) {
-            fs.copyFileSync(src, dest);
+            copyFile(src, dest);
             console.log(`Created: ${file}`);
         } else if (file === '.env.example' && fs.existsSync(path.join(packageDir, '.env'))) {
-            // Fallback to .env if .env.example doesn't exist in source but we want to provide one
-            fs.copyFileSync(path.join(packageDir, '.env'), dest);
+            copyFile(path.join(packageDir, '.env'), dest);
             console.log(`Created: ${file}`);
         }
     });
@@ -125,6 +122,42 @@ function copyRecursiveSync(src, dest) {
             copyRecursiveSync(path.join(src, childItemName), path.join(dest, childItemName));
         });
     } else {
+        copyFile(src, dest);
+    }
+}
+
+/**
+ * Copy a file and apply transformation if it's a text file
+ */
+function copyFile(src, dest) {
+    const extension = path.extname(src);
+    const basename = path.basename(src);
+    const textFiles = ['.js', '.ejs', '.json', '.example', '.md', '.log'];
+
+    // Check if it's a text file or a hidden config file (like .env)
+    if (textFiles.includes(extension) || basename.startsWith('.')) {
+        let content = fs.readFileSync(src, 'utf8');
+        content = transformContent(content);
+        fs.writeFileSync(dest, content);
+    } else {
         fs.copyFileSync(src, dest);
     }
+}
+
+/**
+ * Transform template content to use package name instead of relative paths
+ */
+function transformContent(content) {
+    // 1. Replace relative src/index imports with the package name
+    // Matches: require('./src/index'), require('../src/index'), etc.
+    content = content.replace(/require\(['"](\.\/|\.\.\/)+src\/index(\.js)?['"]\)/g, "require('luak-express')");
+
+    // 2. Replace other relative src imports with package-based src paths
+    // Matches: require('./src/Support/helpers') -> require('luak-express/src/Support/helpers')
+    content = content.replace(/require\(['"](\.\/|\.\.\/)+src\/(.*?)['"]\)/g, "require('luak-express/src/$2')");
+
+    // 3. Handle JSDoc imports or other text-based references
+    content = content.replace(/import\(['"](\.\/|\.\.\/)+src\/(.*?)['"]\)/g, "import('luak-express/src/$2')");
+
+    return content;
 }
