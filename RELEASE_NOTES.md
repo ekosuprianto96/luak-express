@@ -1,3 +1,15 @@
+# Release Notes - Luak Express v2.1.2 🚀
+
+Versi **2.1.2** adalah update kritikal yang memperbaiki struktur pemanggilan modul pada proyek hasil inisialisasi CLI.
+
+## 🛠️ CLI Fix: Package-Ready Scaffolding
+
+*   **Intelligent Path Transformation**: Perintah `luak init` kini secara otomatis mendeteksi dan mengubah semua import relatif framework (seperti `../../src/index`) menjadi import berbasis package (`require('luak-express')`).
+*   **Root-Level Support**: Transformasi path kini juga berlaku untuk file di level root proyek seperti `index.js`, memastikan proyek baru dapat dijalankan langsung tanpa error `Module Not Found`.
+*   **Improved JSDoc & Config**: Semua referensi tipe dan path di file konfigurasi sekarang merujuk ke lokasi package yang benar di `node_modules`.
+
+---
+
 # Release Notes - Luak Express v2.1.1 🚀
 
 Versi **2.0.0** adalah tonggak sejarah besar bagi Luak Express, menghadirkan kestabilan inti framework, keamanan desain, dan pengalaman debugging kelas atas yang terinspirasi dari standar industri modern (Laravel).
