@@ -5,6 +5,13 @@ const Router = require('../Routing/Router');
 
 class Application {
     /**
+     * The static instance of the application.
+     * 
+     * @type {Application}
+     */
+    static instance;
+
+    /**
      * Create a new application instance.
      * 
      * @param {string} basePath
@@ -17,6 +24,8 @@ class Application {
         this.providers = [];
         this.booted = false;
 
+        Application.setInstance(this);
+
         this.bind('app', this);
         this.bind('config', new Config(this.configPath()), true);
         this.bind('router', new Router(this), true);
@@ -26,6 +35,24 @@ class Application {
         const { dd, d } = require('./helpers/dd');
         global.dd = dd;
         global.d = d;
+    }
+
+    /**
+     * Set the static instance of the application.
+     * 
+     * @param {Application} instance
+     */
+    static setInstance(instance) {
+        Application.instance = instance;
+    }
+
+    /**
+     * Get the static instance of the application.
+     * 
+     * @returns {Application}
+     */
+    static getInstance() {
+        return Application.instance;
     }
 
     /**

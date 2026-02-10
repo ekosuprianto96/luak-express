@@ -1,4 +1,4 @@
-const appInstance = require('../../bootstrap/app');
+const Application = require('../Foundation/Application');
 
 /**
  * Get the available container instance.
@@ -7,6 +7,12 @@ const appInstance = require('../../bootstrap/app');
  * @return {object|any}
  */
 global.app = (abstract = null) => {
+    const appInstance = Application.getInstance();
+
+    if (!appInstance) {
+        throw new Error('Application instance has not been initialized.');
+    }
+
     if (!abstract) {
         return appInstance;
     }
@@ -21,7 +27,7 @@ global.app = (abstract = null) => {
  * @return {string}
  */
 global.app_path = (path = '') => {
-    return appInstance.path('app' + (path ? '/' + path : ''));
+    return Application.getInstance().path('app' + (path ? '/' + path : ''));
 }
 
 /**
@@ -31,7 +37,7 @@ global.app_path = (path = '') => {
  * @return {string}
  */
 global.config_path = (path = '') => {
-    return appInstance.path('config' + (path ? '/' + path : ''));
+    return Application.getInstance().path('config' + (path ? '/' + path : ''));
 }
 
 /**
@@ -41,7 +47,7 @@ global.config_path = (path = '') => {
  * @return {string}
  */
 global.base_path = (path = '') => {
-    return appInstance.path(path);
+    return Application.getInstance().path(path);
 }
 
 /**

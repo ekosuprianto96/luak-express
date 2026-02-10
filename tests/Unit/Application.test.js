@@ -17,7 +17,7 @@ describe('Application', () => {
     });
 
     test('it returns correct version', () => {
-        expect(app.version()).toBe('2.0.0');
+        expect(app.version()).toBe('2.1.2');
     });
 
     test('it can bind and resolve an abstract', () => {
