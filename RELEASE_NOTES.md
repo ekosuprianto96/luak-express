@@ -2,17 +2,16 @@
 
 Versi **2.1.2** adalah update kritikal yang memperbaiki struktur pemanggilan modul pada proyek hasil inisialisasi CLI.
 
-## 🛠️ CLI Fix: Package-Ready Scaffolding
+## 🛠️ CLI & Core Fix: Reliability First
 
-*   **Intelligent Path Transformation**: Perintah `luak init` kini secara otomatis mendeteksi dan mengubah semua import relatif framework (seperti `../../src/index`) menjadi import berbasis package (`require('luak-express')`).
-*   **Root-Level Support**: Transformasi path kini juga berlaku untuk file di level root proyek seperti `index.js`, memastikan proyek baru dapat dijalankan langsung tanpa error `Module Not Found`.
-*   **Improved JSDoc & Config**: Semua referensi tipe dan path di file konfigurasi sekarang merujuk ke lokasi package yang benar di `node_modules`.
+*   **Intelligent Path Transformation**: Perintah `luak init` kini secara otomatis mendeteksi dan mengubah semua import relatif framework (seperti `../../src/index`) menjadi import berbasis package (`require('luak-express')`). Ini memastikan proyek starter langsung berjalan tanpa error `Module Not Found`.
+*   **Static Application Instance**: Mengubah cara helper global (`app()`, `config()`, dll) menemukan instance aplikasi. Sekarang menggunakan *Static Singleton* di class `Application`, yang jauh lebih stabil saat framework dijalankan dari folder `node_modules`.
+*   **Root-Level Support**: Transformasi path kini juga berlaku untuk file di level root proyek seperti `index.js`.
+*   **Improved JSDoc & Config**: Semua referensi tipe dan path di file konfigurasi sekarang merujuk ke lokasi package yang benar.
 
 ---
 
 # Release Notes - Luak Express v2.1.1 🚀
-<<<<<<< HEAD
-=======
 
 Versi **2.1.1** adalah update minor yang fokus pada sinkronisasi dokumentasi dan perbaikan typo pada README.
 
@@ -32,7 +31,6 @@ Versi **2.1.0** menghadirkan peningkatan signifikan pada Developer Experience (D
 ---
 
 # Release Notes - Luak Express v2.0.0 🚀
->>>>>>> 4052158 (chore: restore v2.1.2 and synchronize release notes)
 
 Versi **2.0.0** adalah tonggak sejarah besar bagi Luak Express, menghadirkan kestabilan inti framework, keamanan desain, dan pengalaman debugging kelas atas yang terinspirasi dari standar industri modern (Laravel).
 
