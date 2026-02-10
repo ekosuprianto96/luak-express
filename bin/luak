@@ -79,7 +79,7 @@ function updatePackageJson(targetDir) {
                 "test": "jest"
             },
             dependencies: {
-                "luak-express": "^2.0.0"
+                "luak-express": "^2.1.2"
             }
         };
         fs.writeFileSync(pkgPath, JSON.stringify(minimalPkg, null, 2));
