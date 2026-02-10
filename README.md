@@ -1,8 +1,8 @@
-# Luak Express Framework v2.1.2 🚀
+# Luak Express Framework v2.1.3 🚀
 
 **Luak Express** adalah framework Node.js premium berbasis Express yang dirancang untuk memberikan pengalaman pengembangan (Developer Experience) sekelas Laravel. Dengan fokus pada keindahan desain, kemudahan penggunaan, dan struktur yang solid.
 
-## ✨ Fitur Utama (v2.1.2)
+## ✨ Fitur Utama (v2.1.3)
 
 *   **Premium Debugging (`dd` & `d`)**: Fungsi "Dump and Die" dengan tampilan HTML mewah, tipografi IBM Plex, dan isolasi konteks menggunakan `AsyncLocalStorage`.
 *   **Encapsulated Core Handling**: Exception handler dan view error default (500, 404) kini terisolasi di dalam core framework untuk keamanan maksimal.
@@ -71,7 +71,7 @@ d('Ini hanyalah log premium');
 └── package.json
 ```
 
-## ⬆️ Update v2.1.2
+## ⬆️ Update v2.1.3
 *   CLI Auto-Scaffolding: Script `dev` dan `test` otomatis ditambahkan saat `init`.
 *   Centralized Versioning di `Application.js`.
 *   Pemindahan Error Handler ke `src/Foundation/Exceptions/Handler.js`.
