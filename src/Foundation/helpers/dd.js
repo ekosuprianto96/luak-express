@@ -79,6 +79,7 @@ function getType(value) {
  * Render the premium HTML dump page.
  */
 function renderHtml(dumps, callerStack) {
+    const store = requestContext.getStore();
     const callerLine = (callerStack || '')
         .split('\n')
         .slice(2)
