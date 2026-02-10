@@ -1,6 +1,6 @@
-# Release Notes - Luak Express v2.1.2 🚀
+# Release Notes - Luak Express v2.1.3 🚀
 
-Versi **2.1.2** adalah update kritikal yang memperbaiki struktur pemanggilan modul pada proyek hasil inisialisasi CLI.
+Versi **2.1.3** adalah update kritikal yang memperbaiki struktur pemanggilan modul pada proyek hasil inisialisasi CLI.
 
 ## 🛠️ CLI & Core Fix: Reliability First
 
