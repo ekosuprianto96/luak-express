@@ -11,7 +11,7 @@ class Application {
      */
     constructor(basePath) {
         this.basePath = basePath;
-        this.VERSION = '2.0.0';
+        this.VERSION = '2.1.0';
         this.bindings = new Map();
         this.instances = new Map();
         this.providers = [];

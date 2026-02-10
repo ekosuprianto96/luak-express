@@ -16,6 +16,24 @@
 npm install luak-express
 ```
 
+## 🚀 Memulai Proyek Baru
+
+Luak Express menyediakan CLI untuk mempercepat pembuatan struktur folder proyek baru secara otomatis.
+
+1.  **Instalasi CLI Secara Global (Opsional)**:
+    ```bash
+    npm install -g luak-express
+    ```
+
+2.  **Inisialisasi Proyek**:
+    Buka terminal di folder proyek Anda, lalu jalankan:
+    ```bash
+    npx luak init
+    ```
+    *Atau jika sudah instal global:* `luak init`
+
+Perintah ini akan secara otomatis membuat struktur folder `app/`, `bootstrap/`, `config/`, `routes/`, serta file `index.js` dan `.env.example`.
+
 ## 🛠️ Penggunaan Dasar
 
 ### Global Helpers

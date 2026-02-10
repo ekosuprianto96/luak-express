@@ -38,7 +38,7 @@ function initProject() {
     dirsToCopy.forEach(dir => {
         const src = path.join(packageDir, dir);
         const dest = path.join(targetDir, dir);
-        
+
         if (fs.existsSync(src)) {
             copyRecursiveSync(src, dest);
             console.log(`Created: ${dir}`);
@@ -49,21 +49,66 @@ function initProject() {
     filesToCopy.forEach(file => {
         const src = path.join(packageDir, file);
         const dest = path.join(targetDir, file);
-        
+
         // Handle .gitignore specifically if needed to avoid npm publishing issues
         // For now direct copy
         if (fs.existsSync(src)) {
             fs.copyFileSync(src, dest);
             console.log(`Created: ${file}`);
         } else if (file === '.env.example' && fs.existsSync(path.join(packageDir, '.env'))) {
-             // Fallback to .env if .env.example doesn't exist in source but we want to provide one
-             fs.copyFileSync(path.join(packageDir, '.env'), dest);
-             console.log(`Created: ${file}`);
+            // Fallback to .env if .env.example doesn't exist in source but we want to provide one
+            fs.copyFileSync(path.join(packageDir, '.env'), dest);
+            console.log(`Created: ${file}`);
         }
     });
 
+    // 3. Update package.json scripts
+    updatePackageJson(targetDir);
+
     console.log('\nProject initialized successfully!');
     console.log('Run "npm install" to install dependencies.');
+}
+
+function updatePackageJson(targetDir) {
+    const pkgPath = path.join(targetDir, 'package.json');
+
+    if (!fs.existsSync(pkgPath)) {
+        console.log('Warning: package.json not found. Creating a minimal one...');
+        const minimalPkg = {
+            name: path.basename(targetDir),
+            version: '1.0.0',
+            scripts: {
+                "dev": "node --watch index.js",
+                "test": "jest"
+            },
+            dependencies: {
+                "luak-express": "^2.0.0"
+            }
+        };
+        fs.writeFileSync(pkgPath, JSON.stringify(minimalPkg, null, 2));
+        return;
+    }
+
+    try {
+        const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+        pkg.scripts = pkg.scripts || {};
+
+        // Add scripts if they don't exist
+        if (!pkg.scripts.dev) {
+            pkg.scripts.dev = "node --watch index.js";
+        }
+
+        // Smarter test script detection: if it's the default npm error or missing, replace it
+        const defaultNpmTest = 'echo "Error: no test specified" && exit 1';
+        if (!pkg.scripts.test || pkg.scripts.test === defaultNpmTest) {
+            pkg.scripts.test = "jest";
+        }
+
+        fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
+        console.log('Updated: package.json scripts');
+    } catch (e) {
+        console.error('Error updating package.json:', e.message);
+    }
 }
 
 function copyRecursiveSync(src, dest) {
