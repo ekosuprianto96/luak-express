@@ -15,8 +15,7 @@ storage/framework/cache/data/*
 database.sqlite
 database.sqlite-journal
 
-# IDE & OS
-.vscode/
-.idea/
-.DS_Store
-Thumbs.db
+# Luak Docs
+PUBLISH.md
+
+# Logs
